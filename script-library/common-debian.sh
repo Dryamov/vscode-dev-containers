@@ -91,7 +91,7 @@ if [ "$INSTALL_ZSH" = "true" ] && [ ! -d "/root/.oh-my-zsh" ]; then
     echo "export PATH=\$PATH:\$HOME/.local/bin" >> /root/.zshrc
     echo 'autoload -U compinit && compinit' >>/root/.zshrc
     sed -i 's:ZSH_THEME="robbyrussell":ZSH_THEME="powerlevel10k/powerlevel10k":' ~/.zshrc
-    sed -i 's/plugins=(git)/plugins=(git zsh-completions zsh-syntax-highlighting zsh-autosuggestions history-substring-search zsh-better-npm-completion docker docker-compose)/g' /root/.zshrc
+    sed -i 's/plugins=(git)/plugins=(git zsh-completions zsh-syntax-highlighting zsh-autosuggestions history-substring-search zsh-better-npm-completion docker docker-compose ng)/g' /root/.zshrc
     curl -o /root/.p10k.zsh "https://gist.githubusercontent.com/Dryamov/327633233ae710b29032cf43b856567d/raw/88b15a60254cfe158e4166aa111fa54ed148db13/.p10k.zsh"
 fi
 
