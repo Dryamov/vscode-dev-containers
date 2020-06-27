@@ -78,6 +78,21 @@ if [ "$(echo "$LIBSSL" | grep -o 'libssl1\.0\.[0-9]:' | uniq | sort | wc -l)" -e
     fi
 fi
 
+# Optionally install and configure zsh
+if [ "$INSTALL_ZSH" = "true" ] && [ ! -d "/root/.oh-my-zsh" ]; then 
+    apt-get install -y zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    git clone  https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
+    git clone  https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    git clone  https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    git clone  https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
+    git clone  https://github.com/lukechilds/zsh-better-npm-completion ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-better-npm-completion
+    echo "export PATH=\$PATH:\$HOME/.local/bin" >> /root/.zshrc
+    echo 'autoload -U compinit && compinit' >>/root/.zshrc
+    sed -i 's/plugins=(git)/plugins=(git zsh-completions zsh-syntax-highlighting zsh-autosuggestions history-substring-search zsh-better-npm-completion docker docker-compose)/g' /root/.zshrc
+fi
+
+
 # Create or update a non-root user to match UID/GID - see https://aka.ms/vscode-remote/containers/non-root-user.
 if id -u $USERNAME > /dev/null 2>&1; then
     # User exists, update if needed
@@ -91,7 +106,13 @@ if id -u $USERNAME > /dev/null 2>&1; then
 else
     # Create user
     groupadd --gid $USER_GID $USERNAME
-    useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME
+    useradd -s  "$(which zsh)" --uid $USER_UID --gid $USER_GID -m $USERNAME
+    
+    # Copy oh-my-zsh
+    cp -R /root/.oh-my-zsh /home/$USERNAME
+    cp /root/.zshrc /home/$USERNAME
+    sed -i -e "s/\/root\/.oh-my-zsh/\/home\/$USERNAME\/.oh-my-zsh/g" /home/$USERNAME/.zshrc
+    chown -R $USER_UID:$USER_GID /home/$USERNAME/.oh-my-zsh /home/$USERNAME/.zshrc
 fi
 
 # Add add sudo support for non-root user
@@ -102,22 +123,4 @@ chmod 0440 /etc/sudoers.d/$USERNAME
 # Ensure ~/.local/bin is in the PATH for root and non-root users for bash. (zsh is later)
 echo "export PATH=\$PATH:\$HOME/.local/bin" | tee -a /root/.bashrc >> /home/$USERNAME/.bashrc 
 chown $USER_UID:$USER_GID /home/$USERNAME/.bashrc
-
-# Optionally install and configure zsh
-if [ "$INSTALL_ZSH" = "true" ] && [ ! -d "/root/.oh-my-zsh" ]; then 
-    apt-get install -y zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    git clone  https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
-    git clone  https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-    git clone  https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone  https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
-    git clone  https://github.com/lukechilds/zsh-better-npm-completion ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-better-npm-completion
-    echo "export PATH=\$PATH:\$HOME/.local/bin" >> /root/.zshrc
-    echo 'autoload -U compinit && compinit' >>/root/.zshrc
-    sed -i 's/plugins=(git)/plugins=(git zsh-completions zsh-syntax-highlighting zsh-autosuggestions history-substring-search zsh-better-npm-completion docker docker-compose)/g' /root/.zshrc
-    cp -R /root/.oh-my-zsh /home/$USERNAME
-    cp /root/.zshrc /home/$USERNAME
-    sed -i -e "s/\/root\/.oh-my-zsh/\/home\/$USERNAME\/.oh-my-zsh/g" /home/$USERNAME/.zshrc
-    chown -R $USER_UID:$USER_GID /home/$USERNAME/.oh-my-zsh /home/$USERNAME/.zshrc
-fi
 
