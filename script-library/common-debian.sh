@@ -27,7 +27,7 @@ apt-get -y install --no-install-recommends apt-utils 2> >( grep -v 'debconf: del
 
 # Get to latest versions of all packages
 if [ "${UPGRADE_PACKAGES}" = "true" ]; then
-    apt-get -y upgrade --no-install-recommends
+    apt-get -y upgrade --no-install-recommends 
 fi
 
 # Install common dependencies
