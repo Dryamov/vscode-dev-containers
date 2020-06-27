@@ -111,6 +111,7 @@ else
     # Copy oh-my-zsh
     cp -R /root/.oh-my-zsh /home/$USERNAME
     cp /root/.zshrc /home/$USERNAME
+    cp /root/.bashrc /home/$USERNAME
     sed -i -e "s/\/root\/.oh-my-zsh/\/home\/$USERNAME\/.oh-my-zsh/g" /home/$USERNAME/.zshrc
     chown -R $USER_UID:$USER_GID /home/$USERNAME/.oh-my-zsh /home/$USERNAME/.zshrc
 fi
@@ -121,6 +122,7 @@ echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME
 chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Ensure ~/.local/bin is in the PATH for root and non-root users for bash. (zsh is later)
+touch /home/$USERNAME/.bashrc 
 echo "export PATH=\$PATH:\$HOME/.local/bin" | tee -a /root/.bashrc >> /home/$USERNAME/.bashrc 
 chown $USER_UID:$USER_GID /home/$USERNAME/.bashrc
 
