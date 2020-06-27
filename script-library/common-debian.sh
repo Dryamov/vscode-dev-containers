@@ -87,9 +87,12 @@ if [ "$INSTALL_ZSH" = "true" ] && [ ! -d "/root/.oh-my-zsh" ]; then
     git clone  https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone  https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
     git clone  https://github.com/lukechilds/zsh-better-npm-completion ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-better-npm-completion
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
     echo "export PATH=\$PATH:\$HOME/.local/bin" >> /root/.zshrc
     echo 'autoload -U compinit && compinit' >>/root/.zshrc
+    sed -i 's:ZSH_THEME="robbyrussell":ZSH_THEME="powerlevel10k/powerlevel10k":' ~/.zshrc
     sed -i 's/plugins=(git)/plugins=(git zsh-completions zsh-syntax-highlighting zsh-autosuggestions history-substring-search zsh-better-npm-completion docker docker-compose)/g' /root/.zshrc
+    curl -o /root/.p10k.zsh "https://gist.githubusercontent.com/Dryamov/327633233ae710b29032cf43b856567d/raw/88b15a60254cfe158e4166aa111fa54ed148db13/.p10k.zsh"
 fi
 
 
@@ -111,9 +114,10 @@ else
     # Copy oh-my-zsh
     cp -R /root/.oh-my-zsh /home/$USERNAME
     cp /root/.zshrc /home/$USERNAME
+    cp /root/.p10k.zsh /home/$USERNAME
     cp /root/.bashrc /home/$USERNAME
     sed -i -e "s/\/root\/.oh-my-zsh/\/home\/$USERNAME\/.oh-my-zsh/g" /home/$USERNAME/.zshrc
-    chown -R $USER_UID:$USER_GID /home/$USERNAME/.oh-my-zsh /home/$USERNAME/.zshrc
+    chown -R $USER_UID:$USER_GID /home/$USERNAME/.oh-my-zsh /home/$USERNAME/.zshrc /home/$USERNAME/.p10k.zsh
 fi
 
 # Add add sudo support for non-root user
